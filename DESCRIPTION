@@ -1,12 +1,20 @@
 Package: sjTabone
 Type: Package
-Title: What the Package Does (Title Case)
+Title: Creates a summary table for a given dataframe.
 Version: 0.1.0
-Author: Who wrote it
-Maintainer: The package maintainer <yourself@somewhere.net>
-Description: More about what it does (maybe more than one line)
-    Use four spaces when indenting paragraphs within the Description.
-License: What license is it under?
+Authors@R: c(person("Vegesana","Kasi",email="kasi.vegesana@stjude.org",role=c("cre","aut")))
+Description: This packages creates a summary for a given dataset similar to most table ones in publications.
+        Categorical and continuous variables are subsetted by a given grouping column. Statistical tests are performed to compares values between groups.
+License: GPL-3
+URL: https://github.com/kvegesan-stjude/sjTabone
+Depends:
+    R (>= 4.1.2)
+Imports:
+    dplyr (>= 1.1.0),
+    tidyr (>= 1.3.0),
+    data.table (>= 1.14.8),
+    rstatix (>= 0.7.2),
+    gt (>= 0.8.0)
 Encoding: UTF-8
 LazyData: true
 RoxygenNote: 7.2.3

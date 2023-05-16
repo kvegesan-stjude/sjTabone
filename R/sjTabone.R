@@ -6,14 +6,20 @@
 #'
 
 
-# Load libraries-----
-
+# ' Load the libraries
 library(dplyr)
 library(tidyr)
 library(data.table)
 library(rstatix)
 library(gt)
-# ----
+
+#'@title
+#'
+#' Write the output of the sjtabone function to a word document.
+#'
+#' @param tab.one A dataframe output from the function sjTabone.
+#' @param filename Filename to write the output. It automatically adds a docx extension
+
 write_tabone<-function(tab.one,filename){
 
   tab.one%>%mutate(pval=as.double(pval))%>%
@@ -61,10 +67,23 @@ write_tabone<-function(tab.one,filename){
     )%>%sub_values(columns = pval,values = 99999,replacement = '')%>%
     gtsave(filename = paste0(filename,'.docx',collapse=''))
 }
+
+
+#'@title
+#'
+#' A helper function to pivot confidence intervals for normal/non-normal variables.
 my_quantile <- function(x, probs) {
   f <- tibble(x = quantile(x, probs, na.rm = TRUE), probs = probs)
   pivot_wider(f, names_from = probs, values_from = x)
 }
+#'@title
+#'
+#' Runs the Fisher exact test and returns a dataframe with p-values. This function is used by summarize_categorical().
+#'
+#' @param data A dataframe with data.
+#' @param strata The column to use for stratification of the data into cases/controls.
+#' @param i The categorical column/variable that is being stratified.
+#' @param idcol This is the column with unique identifiers for each row of the data. This is the column that will be used to generate the counts to run the test.
 
 run_fisher<-function(data,strata,i,idcol){
   x<-data %>% group_by(!!as.name(strata),!!as.name(i)) %>%
@@ -83,13 +102,26 @@ run_fisher<-function(data,strata,i,idcol){
   return(f.test)
 }
 
+#'@title
+#'
+#' This function runs the Kruskal-Wallis test on non-normal data. This function is used by summarize_nonnormal.
+#'
+#' @param data Dataframe of your data.
+#' @param strata The column to use for stratification of the data into cases/controls.
+#' @param i The non-normal column/variable that is being stratified.
 run_kwtest<-function(data,strata,i){
   formla<-as.formula(paste0(i,"~",strata))
   kw.test<-data%>%kruskal_test(formula = formla)
   kw.test<-as.data.frame(kw.test)
   return(kw.test)
 }
-
+#'@title
+#'
+#' This functions runs anova on normally distributed columns/variables. It's used by summarize_normal.
+#'
+#' @param data Dataframe of your data.
+#' @param strata The column to use for stratification of the data into cases/controls.
+#' @param i The normal column/variable that is being stratified.
 run_anova<-function(data,strata,i){
   formla<-as.formula(paste0(i,"~",strata))
   av.test<-data%>%anova_test(formula = formla)
@@ -97,6 +129,15 @@ run_anova<-function(data,strata,i){
   return(av.test)
 }
 
+#'@title Summarize Categorical variables.
+#'@description
+#' Function to summarize categorical variables. It's used by sjtabone.
+#' This function can also be used as a stand alone function.
+#' @param data Dataframe of your data.
+#' @param strata The column to use for stratification of the data into cases/controls.
+#' @param i The categorical column/variable that is being stratified.
+#' @param idcol This is the column with unique identifiers for each row of the data. This is the column that will be used to generate the counts to run the test.
+#' @param grps If your stratifying column has more than 2 groups, and you only want to summarize a subset of them, pass those values to this function.
 summarize_categorical <- function(data, strata, i,idcol,grps=NULL) {
   method<-"categorical"
   temp <- data %>% group_by(!!as.name(strata),!!as.name(i)) %>%
@@ -131,7 +172,13 @@ summarize_categorical <- function(data, strata, i,idcol,grps=NULL) {
   return(temp)
 
 }
-
+#'@title Function to summarize non-normal variables
+#'@description
+#'This function is used by sjtabone. It can also be used as a stand alone function.
+#' @param data Dataframe of your data.
+#' @param strata The column to use for stratification of the data into cases/controls.
+#' @param i The non-normal column/variable that is being stratified.
+#' @param grps If your stratifying column has more than 2 groups, and you only want to summarize a subset of them, pass those values to this function.
 
 summarize_nonnormal <- function(data, strata, i,grps=NULL) {
   method <- 'nonnormal'
@@ -171,7 +218,13 @@ summarize_nonnormal <- function(data, strata, i,grps=NULL) {
   return(temp)
 }
 
-
+#'@title Function to summarize normal variables.
+#'@description
+#'This function is used by sjtabone. It can also be used as a stand alone function.
+#' @param data Dataframe of your data.
+#' @param strata The column to use for stratification of the data into cases/controls.
+#' @param i The normal column/variable that is being stratified.
+#' @param grps If your stratifying column has more than 2 groups, and you only want to summarize a subset of them, pass those values to this function.
 summarize_normal <- function(data, strata, i,grps=NULL) {
   method <- "normal"
   #
@@ -218,9 +271,24 @@ summarize_normal <- function(data, strata, i,grps=NULL) {
 
 
 
+#' @title Summarize your dataset and and compare between stratifying groups.
+#' @description
+#'
+#' Function to summarize your dataset. For every variable in the vector myvars the function checks whether it's categorical, or continuous.
+#' If it's continuous it tests the normality of the variable to summarize appropriately.
+#' It returns a dataframe with counts and percentages for the categorical variable. The normally distributed variables are summarized by mean and standard deviation.
+#' Non-normal variables are summarized median and inter-quartile ranges.
+#' Statistical comparisons are made between the different groups in the stratification column using the aprropriate statistical tests.
+#' Categorical variables are compared using the Fisher exact test.
+#' Normal variables are compared using ANOVA.
+#' Non-normal variables are compared using the Kruskal-Wallis test.
+#' @param data Dataframe of your data.
+#' @param myvars Vector of column names form your dataset that need to be summarized. Categorical variables wil need to be cast as factors before passing the dataframe to the function.
+#' @param idcol This is the column with unique identifiers for each row of the data. This is the column that will be used to generate the counts to run the test.
+#' @param strata The column to use for stratification of the data into cases/controls.
+#' @param grps If your stratifying column has more than 2 groups, and you only want to summarize a subset of them, pass those values to this function.
 
-
-sjtabone<-function(data,myvars,idcol,strata,grps=NULL){
+sjTabone<-function(data,myvars,idcol,strata,grps=NULL){
 
   first <- TRUE
   for (i in myvars) {
@@ -291,9 +359,5 @@ sjtabone<-function(data,myvars,idcol,strata,grps=NULL){
   fulltable <- rbind(temp, fulltable)
   return(fulltable)
 }
-# ----
-
-
-# ----
 
 

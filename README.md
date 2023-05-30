@@ -72,4 +72,4 @@ write_tabone(sumry,'Summary1')
 
 This is an example of the output.
 
-![](Summary1.png)
+![Summary](Summary1.png)

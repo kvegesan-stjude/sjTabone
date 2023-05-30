@@ -1,6 +1,6 @@
 Package: sjTabone
 Type: Package
-Title: Creates a summary table for a given dataframe.
+Title: Create a summary table for publications.
 Version: 0.1.0
 Authors@R: c(person("Vegesana","Kasi",email="kasi.vegesana@stjude.org",role=c("cre","aut")))
 Description: This packages creates a summary for a given dataset similar to most table ones in publications.

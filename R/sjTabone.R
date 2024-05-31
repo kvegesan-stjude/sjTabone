@@ -1,11 +1,14 @@
 
+#' @import tidyr
+#' @import dplyr
+#' @import rstatix
+#' @import gt
+#' @export
 
 #' @title sjTabone
 #'
 #' @description Create a summarized table one for a given data set of continuous and categorical variables.
 #'
-
-
 # ' Load the libraries
 library(dplyr)
 library(tidyr)

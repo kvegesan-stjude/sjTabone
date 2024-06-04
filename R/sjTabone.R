@@ -22,7 +22,7 @@ library(gt)
 #'
 #' @param tab.one A dataframe output from the function sjTabone.
 #' @param filename Filename to write the output. It automatically adds a docx extension
-
+#' @export
 write_tabone<-function(tab.one,filename){
 
   tab.one%>%mutate(pval=as.double(pval))%>%
@@ -75,6 +75,7 @@ write_tabone<-function(tab.one,filename){
 #'@title
 #'
 #' A helper function to pivot confidence intervals for normal/non-normal variables.
+#' @export
 my_quantile <- function(x, probs) {
   f <- tibble(x = quantile(x, probs, na.rm = TRUE), probs = probs)
   pivot_wider(f, names_from = probs, values_from = x)
@@ -87,7 +88,7 @@ my_quantile <- function(x, probs) {
 #' @param strata The column to use for stratification of the data into cases/controls.
 #' @param i The categorical column/variable that is being stratified.
 #' @param idcol This is the column with unique identifiers for each row of the data. This is the column that will be used to generate the counts to run the test.
-
+#' @export
 run_fisher<-function(data,strata,i,idcol){
   x<-data %>% group_by(!!as.name(strata),!!as.name(i)) %>%
     summarise(n = n_distinct(!!as.name(idcol)))%>%
@@ -112,6 +113,7 @@ run_fisher<-function(data,strata,i,idcol){
 #' @param data Dataframe of your data.
 #' @param strata The column to use for stratification of the data into cases/controls.
 #' @param i The non-normal column/variable that is being stratified.
+#' @export
 run_kwtest<-function(data,strata,i){
   formla<-as.formula(paste0(i,"~",strata))
   kw.test<-data%>%kruskal_test(formula = formla)
@@ -125,6 +127,7 @@ run_kwtest<-function(data,strata,i){
 #' @param data Dataframe of your data.
 #' @param strata The column to use for stratification of the data into cases/controls.
 #' @param i The normal column/variable that is being stratified.
+#' @export
 run_anova<-function(data,strata,i){
   formla<-as.formula(paste0(i,"~",strata))
   av.test<-data%>%anova_test(formula = formla)
@@ -141,6 +144,7 @@ run_anova<-function(data,strata,i){
 #' @param i The categorical column/variable that is being stratified.
 #' @param idcol This is the column with unique identifiers for each row of the data. This is the column that will be used to generate the counts to run the test.
 #' @param grps If your stratifying column has more than 2 groups, and you only want to summarize a subset of them, pass those values to this function.
+#' @export
 summarize_categorical <- function(data, strata, i,idcol,grps=NULL) {
   method<-"categorical"
   temp <- data %>% group_by(!!as.name(strata),!!as.name(i)) %>%
@@ -182,7 +186,7 @@ summarize_categorical <- function(data, strata, i,idcol,grps=NULL) {
 #' @param strata The column to use for stratification of the data into cases/controls.
 #' @param i The non-normal column/variable that is being stratified.
 #' @param grps If your stratifying column has more than 2 groups, and you only want to summarize a subset of them, pass those values to this function.
-
+#' @export
 summarize_nonnormal <- function(data, strata, i,grps=NULL) {
   method <- 'nonnormal'
   temp <- data %>% group_by(!!as.name(strata)) %>%
@@ -228,6 +232,7 @@ summarize_nonnormal <- function(data, strata, i,grps=NULL) {
 #' @param strata The column to use for stratification of the data into cases/controls.
 #' @param i The normal column/variable that is being stratified.
 #' @param grps If your stratifying column has more than 2 groups, and you only want to summarize a subset of them, pass those values to this function.
+#' @export
 summarize_normal <- function(data, strata, i,grps=NULL) {
   method <- "normal"
   #
@@ -290,7 +295,7 @@ summarize_normal <- function(data, strata, i,grps=NULL) {
 #' @param idcol This is the column with unique identifiers for each row of the data. This is the column that will be used to generate the counts to run the test.
 #' @param strata The column to use for stratification of the data into cases/controls.
 #' @param grps If your stratifying column has more than 2 groups, and you only want to summarize a subset of them, pass those values to this function.
-
+#' @export
 sjTabone<-function(data,myvars,idcol,strata,grps=NULL){
 
   first <- TRUE
